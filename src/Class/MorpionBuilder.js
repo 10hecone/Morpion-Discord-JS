@@ -5,6 +5,7 @@ export class MorpionBuilder {
     this.id = id;
     this.player = player;
     this.tour = 1;
+    this.nbTour = 0;
     this.map;
     this.buttonMap = [];
   }
@@ -34,7 +35,7 @@ export class MorpionBuilder {
           new ButtonBuilder()
             .setCustomId("morpion_" + index)
             .setLabel("‎")
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
         );
       }
     }
@@ -52,7 +53,7 @@ export class MorpionBuilder {
       )
     );
     morpionBuilder.addTextDisplayComponents((text) =>
-      text.setContent("Id:" + this.id)
+      text.setContent("Id : " + this.id)
     );
     return (this.map = morpionBuilder);
   }
@@ -120,19 +121,21 @@ export class MorpionBuilder {
     const button = this.map.components[pos.x].components[pos.y].data;
 
     button.custom_id += `_${player}`;
-    button.label = player == 1 ? "X" : "O";
+    button.label = player == 1 ? "❌" : "⭕";
     button.disabled = true;
 
-    const winner = this.hasWinner(player);
+    this.nbTour += 1
+
+    const winner =  this.nbTour < 8 ? this.hasWinner(player) : true;
 
     this.tour = player == 1 ? 2 : 1;
 
-    this.map.components[
-      this.map.components.length - 2
-    ].components[0].data.label =
+    if(this.nbTour > 8) this.map.components[this.map.components.length - 2].components[0].data.label = "Partie nulle";
+    else this.map.components[this.map.components.length - 2].components[0].data.label =
       (winner ? "Partie gagnée par " : "Tour à ") +
-      Object.values(this.player)[winner ? player - 1 : this.tour - 1].user
-        .displayName;
+      Object.values(this.player)[winner ? player - 1 : this.tour - 1].user.displayName;
+
+
 
     return {
       components: this.map,

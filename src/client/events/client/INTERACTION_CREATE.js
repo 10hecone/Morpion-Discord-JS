@@ -1,4 +1,4 @@
-import { Events, ContainerBuilder, TextDisplayBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from "discord.js";
+import { Events, ContainerBuilder, TextDisplayBuilder, ButtonBuilder, ButtonStyle, MessageFlags, ReactionUserManager } from "discord.js";
 
 export const event = {
   name: Events.InteractionCreate,
@@ -9,55 +9,78 @@ export const event = {
       return await data.reply({ embeds: [{ title: 'Error', description: "This interaction doesn't exist!" }]});
 
       if(interaction.category === "game" & data.type == 2) {
-        if(interaction.matchmaking.get(data.user.id)) return await data.reply({ embeds: [{ title: 'Error', description: "Vous etes déjà dans le matchmaking!" }]});
-
-        const container = new ContainerBuilder()
-        .addTextDisplayComponents(text => text.setContent("Matchmaking :"))
-        .addActionRowComponents(actionRow => actionRow
-          .addComponents(new ButtonBuilder().setCustomId("matchmaking").setLabel("En Attente...").setDisabled(true).setStyle(ButtonStyle.Success))
-        )
-
-        const message = await data.reply({components: [container], flags: MessageFlags.IsComponentsV2})
-
         const matchmaking = interaction.matchmaking
 
-        if(matchmaking.size > 0) {
-          const [key, value] = matchmaking.entries().next().value;
+        const user = matchmaking.joinWaiting({userId: data.user.id, data})
+        return;
+      //   if(interaction.matchmaking.get(data.user.id)) return await data.reply({ embeds: [{ title: 'Error', description: "Vous etes déjà dans le matchmaking !"}], flags: MessageFlags.Ephemeral});
 
-          matchmaking.delete(key)
+      //   const container = new ContainerBuilder()
+      //   .addTextDisplayComponents(text => text.setContent("```Morpion (Matchmaking) :```"))
+      //   .addSeparatorComponents(separator => separator)
+      //   .addActionRowComponents(actionRow => actionRow
+      //     .addComponents(new ButtonBuilder().setCustomId("matchmaking").setLabel("🕒 En attente d’un joueur...").setDisabled(true).setStyle(ButtonStyle.Primary))
+      //     .addComponents(new ButtonBuilder().setCustomId("exit_morpion").setLabel("❌ Annuler").setDisabled(false).setStyle(ButtonStyle.Secondary))
+      //   )
 
-          container.components[1].components[0].data.label = "Partie trouvée !"
+      //   const message = await data.reply({components: [container], flags: MessageFlags.IsComponentsV2})
 
-          value.edit({components: [container], flags: MessageFlags.IsComponentsV2})
-          message.edit({components: [container], flags: MessageFlags.IsComponentsV2})
 
-          let i = 3
-          const interval = setInterval(() => {
-            if(i < 0) {
-              interval.close()
-              return interaction.runInteraction(client, {1: message, 2: value, reply: (component) => {
-                  value.edit({components: [component], flags: MessageFlags.IsComponentsV2})
-                  message.edit({components: [component], flags: MessageFlags.IsComponentsV2})
-              }});
-            }
-            
-            container.components[1].components[0].data.label = "Lancement dans : " + i
-            value.edit({components: [container], flags: MessageFlags.IsComponentsV2})
-            message.edit({components: [container], flags: MessageFlags.IsComponentsV2})
-            i--
-          }, 1000)
+      //   if(matchmaking.size > 0) {
+      //     const [key, value] = matchmaking.entries().next().value;
+      //     const button = container.components[2].components[0].data
 
-          return
-        } else return interaction.matchmaking.set(data.user.id, message)
+      //     matchmaking.delete(key)
+
+      //     button.label = "Partie trouvée !"
+
+      //     value.message.edit({components: [container], flags: MessageFlags.IsComponentsV2})
+      //     message.edit({components: [container], flags: MessageFlags.IsComponentsV2})
+
+      //     let i = 3
+
+      //     const interval = setInterval(() => {
+      //       if(i < 0) {
+
+      //         button.label = "✅ Lancement !"
+      //         interval.close()
+
+      //         return interaction.runInteraction(client, {1: message, 2: value.message, reply: (interaction, component) => {
+      //           if(!interaction) {
+      //             message.edit({components: [component], flags: MessageFlags.IsComponentsV2})
+      //             value.message.edit({components: [component], flags: MessageFlags.IsComponentsV2})
+      //             return 
+      //           }
+
+      //           interaction.update({components: [component], flags: MessageFlags.IsComponentsV2})
+
+      //           if(value.message.interaction.user.id == interaction.user.id) {
+      //             message.edit({components: [component], flags: MessageFlags.IsComponentsV2})
+      //           } else {
+      //             value.message.edit({components: [component], flags: MessageFlags.IsComponentsV2})
+      //           }
+      //         }});
+
+      //       } else {
+      //         button.label = "⏳ Lancement dans : " + i
+      //       }
+
+      //       value.message.edit({components: [container], flags: MessageFlags.IsComponentsV2})
+      //       message.edit({components: [container], flags: MessageFlags.IsComponentsV2})
+      //       i--
+      //     }, 1000)
+
+      //     return
+      //   } else return interaction.matchmaking.set(data.user.id, {message: message, hasFind: false, against: undefined})
+      // }
       }
       return interaction.runInteraction(client, data)
-      
     }
 
     switch(data.type) {
-      case 2: // Si commandes
+      case 2: 
          return check(client.commands?.get(data.commandName));
-      case 3: // Si boutton
+      case 3: 
         return check(client.buttons?.get(data.message.interaction.commandName));
       default:
         return check(false)

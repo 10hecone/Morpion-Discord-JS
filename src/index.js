@@ -13,9 +13,6 @@ process.on('exit', (code) => {
   console.log(`EXIT: ${code}`);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  console.log(`UNHANDLED_REJECTION: ${reason} \n`, promise);
-});
 
 process.on('uncaughtException', (error) => {
   console.log(error);

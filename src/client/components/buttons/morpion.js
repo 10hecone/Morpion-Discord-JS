@@ -9,19 +9,22 @@ export const component = {
   async runInteraction(client, interaction) {
     const message = interaction.message
 
-    if(interaction.user.id !== message.interaction.user.id) return interaction.reply({content: "Ce n'est pas ton jeu !", flags: MessageFlags.Ephemeral});
+    if(interaction.user.id !== message.interaction.user.id) return interaction.reply({content: "Ce n'est pas ton interaction !", flags: MessageFlags.Ephemeral});
+
+    const [type, index, player] = interaction.customId.split("_")
+    const commands = client.commands.get(message.interaction.commandName)
+
+    if(type === "exit") {
+      commands.matchmaking.leave(interaction, interaction.user.id)
+      return;
+    }
 
     const components = message.components[0].components
-    const id = Number(components[components.length-1].content.split(":")[1])
-    
-    let gameMap = client.commands.get(message.interaction.commandName).game
+    let gameMap = commands.game.get(Number(components[components.length-1].content.split(" : ")[1]))
 
-    if(!gameMap.has(id)) return interaction.reply({content: "Ce jeu n'existe plus !", flags: MessageFlags.Ephemeral});
-
-    gameMap = gameMap.get(id)
+    if(!gameMap) return interaction.reply({content: "Ce jeu n'existe plus !", flags: MessageFlags.Ephemeral});
 
     const morpion = gameMap.morpion
-    const [_, index, player] = interaction.customId.split("_")
     const coup = gameMap.morpion.player[interaction.user.id].id
 
     if(morpion.tour !== coup) return interaction.reply({content: "Ce n'est pas ton tour !", flags: MessageFlags.Ephemeral});
@@ -36,8 +39,6 @@ export const component = {
       }
     }
 
-    gameMap.reply(play.components);
-
-    interaction.reply({content: `Coup joué en ${String.fromCharCode(65 + play.position[0]) + (play.position[1] + 1)}!`, flags: MessageFlags.Ephemeral})
+    gameMap.reply(interaction, play.components);
   }
 };

@@ -15,7 +15,7 @@ export async function handler(client) {
 
       client[dir].set(cmd.component.name, cmd.component);
 
-      console.log(`Commande: ${cmd.component.name} loaded!`);
+      console.log(`Components: ${cmd.component.name} (${cmd.component.category}) loaded!`);
     }
   }
 }

@@ -1,4 +1,5 @@
 import * as fs from 'node:fs';
+import { Matchmaking } from '../../Class/Matchmaking.js';
 
 export async function handler(client) {
   client["commands"] = new Map();
@@ -14,9 +15,10 @@ export async function handler(client) {
       if (cmd.command.category !== dir)
         return console.error(`Command: dir/${cmd.default.name} not loaded, category not match`);
 
-      if (cmd.command.category === "game") 
-        cmd.command.matchmaking = new Map();
+      if (cmd.command.category === "game") {
+        cmd.command.matchmaking = new Matchmaking(cmd.command.name, client);
         cmd.command.game = new Map();
+      }
       
       client.commands.set(cmd.command.name, cmd.command);
 

@@ -1,2 +1,4 @@
 package-lock.json
 node_modules/
+src/client/events/client/READY.js 
+src/index.js

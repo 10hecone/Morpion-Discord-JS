@@ -15,6 +15,6 @@ export const command = {
     
     gameMap.set(gameMap.size+1, {morpion: game, message1: data[1], message2: data[2], reply: data.reply})
     
-    data.reply(game.map)
+    data.reply(undefined, game.map)
   }
 };
